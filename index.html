@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Foursys no São Paulo Innovation Week 2026</title>
+<meta name="description" content="A Foursys esteve no São Paulo Innovation Week 2026. Insights, tendências e palestras que estão moldando o futuro dos negócios e da IA."/>
+
+<!-- GSAP (must be non-module, loaded before the module script) -->
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+
+<!-- Three.js ESM import map -->
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.184.0/build/three.module.js"}}</script>
+
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;font-size:16px}
+body{background:#0d1117;color:#f1f1f7;font-family:Arial,Helvetica,sans-serif;overflow-x:hidden}
+:root{
+  --dark:#0d1117;--navy:#1a1d3b;--orange:#f26118;--blue:#00a6fb;
+  --blue-deep:#0582ca;--surface:#f7f7fa;--muted:#454545;--light:#f1f1f7;
+}
+
+/* ── Hero Logo ── */
+#hero-logo{
+  position:absolute;top:1.5rem;left:2rem;z-index:10;mix-blend-mode:screen;
+}
+#hero-logo img{display:block;width:160px;height:auto;object-fit:contain;}
+
+/* ── Hero ── */
+#hero{
+  position:relative;height:100vh;min-height:600px;
+  display:flex;align-items:center;justify-content:center;overflow:hidden;
+}
+#shader-canvas{position:absolute;inset:0;width:100%;height:100%;}
+#hero-overlay{
+  position:absolute;inset:0;
+  background:linear-gradient(180deg,rgba(13,17,23,.45) 0%,rgba(13,17,23,.72) 100%);
+  z-index:1;
+}
+#hero-content{
+  position:relative;z-index:2;text-align:center;
+  padding:2rem;max-width:820px;opacity:0;transform:translateY(30px);
+}
+#hero-title{
+  font-size:clamp(2.2rem,5.5vw,3.8rem);font-weight:900;color:#fff;
+  line-height:1.13;margin-bottom:1.25rem;letter-spacing:-.025em;
+  opacity:0;transform:translateY(20px);
+}
+#hero-title span{color:var(--blue);}
+#hero-desc{
+  font-size:clamp(1rem,1.8vw,1.15rem);color:rgba(241,241,247,.75);
+  line-height:1.75;max-width:620px;margin:0 auto;
+  opacity:0;transform:translateY(16px);
+}
+
+/* ── Reveal utility ── */
+.reveal{opacity:0;transform:translateY(40px);}
+
+/* ── Executive Summary ── */
+#resumo{padding:6rem 1.5rem;background:var(--surface);}
+#resumo .inner{max-width:1200px;margin:0 auto;}
+#resumo .section-header{text-align:center;margin-bottom:3.5rem;}
+#resumo h2{
+  font-size:clamp(1.8rem,3.5vw,2.75rem);font-weight:800;
+  color:#0d1117;line-height:1.2;margin-bottom:1rem;
+}
+#resumo .section-sub{color:var(--muted);font-size:1.05rem;line-height:1.7;max-width:580px;margin:0 auto;}
+#resumo-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.5rem;
+}
+.resumo-card{
+  background:#fff;border:1px solid rgba(0,0,0,.07);border-radius:1rem;
+  padding:1.5rem;box-shadow:0 2px 12px rgba(0,0,0,.06);cursor:default;
+  transition:transform .2s,box-shadow .2s;
+}
+.resumo-card:hover{transform:translateY(-5px);box-shadow:0 10px 32px rgba(0,0,0,.11);}
+.resumo-card .icon{font-size:2rem;margin-bottom:.75rem;line-height:1;}
+.resumo-card h3{font-size:1rem;font-weight:700;color:#0d1117;margin-bottom:.6rem;}
+.resumo-card p{font-size:.875rem;color:var(--muted);line-height:1.7;}
+
+/* ── Insights ── */
+#insights{padding:6rem 1.5rem;background:var(--dark);}
+#insights .inner{max-width:1200px;margin:0 auto;}
+#insights .section-header{text-align:center;margin-bottom:3rem;}
+#insights-badge{
+  display:inline-block;background:rgba(242,97,24,.12);
+  border:1px solid rgba(242,97,24,.3);border-radius:999px;
+  padding:.3rem 1rem;color:var(--orange);font-size:.75rem;
+  font-weight:600;letter-spacing:.08em;text-transform:uppercase;margin-bottom:1rem;
+}
+#insights h2{
+  font-size:clamp(1.8rem,3.5vw,2.75rem);font-weight:800;
+  color:var(--light);line-height:1.2;margin-bottom:1rem;
+}
+#insights .section-sub{
+  color:rgba(241,241,247,.6);font-size:1.05rem;line-height:1.7;
+  max-width:560px;margin:0 auto 2rem;
+}
+#tabs{
+  display:inline-flex;background:rgba(255,255,255,.05);
+  border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:4px;gap:4px;
+}
+.tab-btn{
+  background:transparent;border:none;border-radius:7px;
+  padding:.55rem 1.4rem;color:rgba(241,241,247,.45);
+  font-size:.85rem;font-weight:600;cursor:pointer;transition:all .25s;
+}
+.tab-btn.active-now{background:linear-gradient(135deg,var(--blue),var(--blue-deep));color:#fff;}
+.tab-btn.active-future{background:linear-gradient(135deg,var(--orange),#e05010);color:#fff;}
+#insights-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:1.5rem;
+  margin-top:0;
+}
+.insight-card{
+  background:rgba(26,29,59,.5);border:1px solid rgba(0,166,251,.12);
+  border-radius:1rem;padding:1.5rem;transition:border-color .2s,background .2s;
+}
+.insight-card:hover{
+  border-color:rgba(0,166,251,.4);background:rgba(26,29,59,.85);
+}
+.insight-tag{
+  display:inline-block;border-radius:6px;padding:.2rem .65rem;
+  font-size:.7rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+  margin-bottom:.8rem;
+}
+.tag-now{background:rgba(0,166,251,.15);border:1px solid rgba(0,166,251,.3);color:var(--blue);}
+.tag-future{background:rgba(242,97,24,.15);border:1px solid rgba(242,97,24,.3);color:var(--orange);}
+.insight-card h3{font-size:1rem;font-weight:700;color:var(--light);margin-bottom:.6rem;}
+.insight-card p{font-size:.875rem;color:rgba(241,241,247,.62);line-height:1.7;}
+
+/* ── Lecture Section ── */
+#palestras{
+  background:linear-gradient(180deg,#0d1117 0%,#0a0f1e 100%);
+  border-top:1px solid rgba(0,166,251,.12);padding:5rem 1.5rem;
+}
+#palestras .inner{max-width:1200px;margin:0 auto;}
+.lecture-badge{
+  display:inline-block;background:rgba(242,97,24,.12);
+  border:1px solid rgba(242,97,24,.3);border-radius:999px;
+  padding:.3rem 1rem;color:var(--orange);font-size:.75rem;
+  font-weight:600;letter-spacing:.08em;text-transform:uppercase;margin-bottom:1rem;
+}
+#palestras h2{
+  font-size:clamp(1.6rem,3vw,2.4rem);font-weight:800;
+  color:var(--light);line-height:1.2;max-width:800px;margin-bottom:3rem;
+}
+.lecture-block{margin-bottom:2.5rem;}
+.col-label{
+  color:var(--blue);font-size:.78rem;font-weight:600;
+  letter-spacing:.08em;text-transform:uppercase;margin-bottom:1rem;
+}
+
+/* ── Audio Player ── */
+#audio-player{
+  background:linear-gradient(135deg,#0d1117 0%,#1a1d3b 100%);
+  border:1px solid rgba(0,166,251,.2);border-radius:1rem;
+  padding:1.5rem;max-width:640px;
+}
+#audio-title{
+  color:var(--light);font-size:.82rem;margin-bottom:1rem;
+  opacity:.65;letter-spacing:.05em;text-transform:uppercase;
+}
+#progress-wrap{
+  width:100%;height:6px;background:rgba(255,255,255,.12);
+  border-radius:999px;cursor:pointer;margin-bottom:.75rem;position:relative;
+}
+#progress-bar{
+  height:100%;background:linear-gradient(90deg,var(--blue),var(--orange));
+  border-radius:999px;width:0%;transition:width .1s linear;
+}
+#progress-thumb{
+  position:absolute;top:50%;left:0%;transform:translate(-50%,-50%);
+  width:14px;height:14px;background:var(--blue);border-radius:50%;
+  box-shadow:0 0 8px rgba(0,166,251,.6);pointer-events:none;
+}
+#audio-times{
+  display:flex;justify-content:space-between;
+  color:rgba(241,241,247,.5);font-size:.75rem;
+  margin-bottom:1.25rem;font-family:monospace;
+}
+#audio-controls{
+  display:flex;align-items:center;justify-content:center;
+  gap:1rem;margin-bottom:1.25rem;
+}
+.ctrl-btn{
+  background:rgba(255,255,255,.08);border:none;border-radius:50%;
+  width:2.25rem;height:2.25rem;display:flex;align-items:center;
+  justify-content:center;cursor:pointer;color:var(--light);
+  font-size:.72rem;font-weight:700;transition:background .2s;
+}
+.ctrl-btn:hover{background:rgba(0,166,251,.25);}
+#play-btn{
+  background:linear-gradient(135deg,var(--blue),var(--blue-deep));
+  border:none;border-radius:50%;width:3.5rem;height:3.5rem;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;box-shadow:0 4px 20px rgba(0,166,251,.4);
+  transition:transform .15s,box-shadow .2s;
+}
+#play-btn:hover{transform:scale(1.08);box-shadow:0 6px 28px rgba(0,166,251,.6);}
+#speed-row{
+  display:flex;align-items:center;gap:.4rem;
+  flex-wrap:wrap;justify-content:center;
+}
+#speed-label{
+  color:rgba(241,241,247,.5);font-size:.7rem;margin-right:.2rem;
+  text-transform:uppercase;letter-spacing:.05em;
+}
+.speed-btn{
+  background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);
+  border-radius:6px;padding:.2rem .55rem;color:rgba(241,241,247,.6);
+  font-size:.72rem;cursor:pointer;font-weight:400;transition:all .2s;
+}
+.speed-btn:hover{background:rgba(0,166,251,.15);}
+.speed-btn.active{
+  background:linear-gradient(135deg,var(--orange),#e05010);
+  border:none;color:#fff;font-weight:700;
+}
+
+/* ── Lecture Summary ── */
+#lecture-summary p{
+  color:rgba(241,241,247,.8);line-height:1.85;font-size:.98rem;
+  white-space:pre-line;
+}
+.kp-label{
+  color:var(--orange);font-size:.75rem;font-weight:600;
+  letter-spacing:.08em;text-transform:uppercase;margin:1.5rem 0 .75rem;
+}
+#key-points{list-style:none;padding:0;margin:0;}
+#key-points li{
+  display:flex;gap:.75rem;align-items:flex-start;
+  margin-bottom:.55rem;color:rgba(241,241,247,.72);
+  font-size:.88rem;line-height:1.65;
+}
+#key-points li span{color:var(--blue);font-weight:700;flex-shrink:0;}
+
+/* ── Testimonials / Palestrantes ── */
+.testimonial-outer{
+  background:#060507;border:1px solid rgba(0,166,251,.15);
+  border-radius:1.5rem;padding:2.5rem 2rem;
+  max-width:860px;
+  display:flex;align-items:center;gap:2.5rem;position:relative;
+  min-height:240px;
+}
+.testimonial-img-wrap{
+  flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:1rem;
+}
+.testimonial-circle{
+  width:160px;height:160px;border-radius:50%;overflow:hidden;
+  border:3px solid var(--blue);box-shadow:0 0 28px rgba(0,166,251,.3);
+  flex-shrink:0;
+}
+.testimonial-circle img{
+  width:100%;height:100%;object-fit:cover;object-position:left center;
+}
+.testimonial-body{flex:1;min-width:0;}
+.testimonial-name{font-size:1.5rem;font-weight:800;color:var(--light);margin-bottom:.25rem;}
+.testimonial-role{
+  font-size:.82rem;color:var(--blue);font-weight:600;
+  letter-spacing:.04em;text-transform:uppercase;margin-bottom:1.25rem;display:block;
+}
+.testimonial-bio{font-size:.9rem;color:rgba(241,241,247,.72);line-height:1.75;}
+.testimonial-nav{display:flex;gap:.75rem;margin-top:1.5rem;align-items:center;}
+.t-nav-btn{
+  width:2.75rem;height:2.75rem;border-radius:50%;
+  background:#141414;border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  color:#f1f1f7;transition:background .2s,box-shadow .2s;flex-shrink:0;
+}
+.t-nav-btn:hover{background:var(--blue);box-shadow:0 0 16px rgba(0,166,251,.4);}
+.t-nav-dots{display:flex;gap:.5rem;justify-content:center;margin-top:1rem;}
+.t-dot{
+  width:8px;height:8px;border-radius:50%;
+  background:rgba(241,241,247,.25);cursor:pointer;
+  transition:background .2s,transform .2s;border:none;padding:0;
+}
+.t-dot.active{background:var(--blue);transform:scale(1.35);}
+@keyframes fadeSlideIn{
+  from{opacity:0;transform:translateX(20px);}
+  to{opacity:1;transform:translateX(0);}
+}
+.testimonial-body.animate{animation:fadeSlideIn .35s ease forwards;}
+
+/* ── Footer ── */
+#footer{
+  background:#060507;border-top:1px solid rgba(255,255,255,.06);
+  padding:3rem 1.5rem;text-align:center;
+}
+#footer-logo{mix-blend-mode:screen;display:inline-block;margin-bottom:1.5rem;}
+#footer-logo img{width:150px;height:auto;object-fit:contain;}
+#footer p{
+  color:rgba(241,241,247,.35);font-size:.85rem;line-height:1.6;
+  max-width:500px;margin:0 auto 1rem;
+}
+#footer a{color:var(--blue);text-decoration:none;}
+#footer .copy{color:rgba(241,241,247,.2);font-size:.75rem;}
+
+/* ── Responsive tweaks ── */
+@media(max-width:600px){
+  .testimonial-outer{flex-direction:column;text-align:center;padding:1.75rem 1rem;}
+  .testimonial-nav{justify-content:center;}
+  .testimonial-circle{width:120px;height:120px;}
+}
+</style>
+</head>
+<body>
+
+
+<!-- ── HERO ── -->
+<section id="hero">
+  <div id="hero-logo">
+    <img src="img/logo_sem_fundo.png" alt="Foursys"/>
+  </div>
+  <canvas id="shader-canvas"></canvas>
+  <div id="hero-overlay"></div>
+  <div id="hero-content">
+    <h1 id="hero-title">
+      Inovação, IA e o Futuro<br>
+      <span>que está acontecendo agora</span>
+    </h1>
+    <p id="hero-desc">
+      A Foursys esteve no São Paulo Innovation Week 2026, o maior evento de
+      inovação e tecnologia da América Latina. Aqui você encontra os principais
+      insights, tendências e palestras que estão moldando o futuro dos negócios
+      e da IA.
+    </p>
+  </div>
+</section>
+
+<!-- ── RESUMO EXECUTIVO ── -->
+<section id="resumo">
+  <div class="inner">
+    <div class="section-header reveal">
+      <h2>Resumo Executivo</h2>
+      <p class="section-sub">Os grandes temas que dominaram o São Paulo Innovation Week 2026,
+      de inteligência artificial a minerais críticos e o futuro da energia.</p>
+    </div>
+    <div id="resumo-grid">
+      <div class="resumo-card reveal"><div class="icon">🤖</div><h3>Agentes &amp; Autonomia</h3><p>A IA deixou de ser uma ferramenta de resposta e passou a ser um sistema de ação. LLMs atuam como sistemas operacionais que orquestram agentes especializados para executar tarefas complexas de ponta a ponta. A mudança do chat para o fazer é a próxima onda de produtividade.</p></div>
+      <div class="resumo-card reveal"><div class="icon">🇧🇷</div><h3>Brasil na IA Global</h3><p>O Brasil ocupa posição de destaque na camada de aplicação da IA, com centros de excelência como o CEIA-UFG e empresas como Bradesco, iFood, Itaú e Vale liderando casos de uso reais. Aliado a reservas estratégicas de minerais críticos, o país tem ativos únicos para a corrida global.</p></div>
+      <div class="resumo-card reveal"><div class="icon">📊</div><h3>Escala vs. Pilotos</h3><p>Apenas 10% das empresas globais escalam IA de forma efetiva. A maioria fica presa no chamado 'purgatory de pilotos'. Os líderes tratam IA como transformação operacional — não como ferramenta isolada. A diferença está em estratégia, cultura, dados e governança.</p></div>
+      <div class="resumo-card reveal"><div class="icon">⚖️</div><h3>Regulação &amp; Geopolítica</h3><p>A regulação de IA tornou-se um instrumento geopolítico. Disputas jurídicas nos EUA definem o futuro do treinamento com dados protegidos. O Brasil corre risco de dependência tecnológica se não investir em soberania de dados e modelos. A corrida regulatória está em pleno andamento.</p></div>
+      <div class="resumo-card reveal"><div class="icon">🏦</div><h3>Setores em Destaque</h3><p>Finanças lidera: BIA do Bradesco resolve 90% das demandas sem intervenção humana. Vale reduziu tempo de busca em dados de exploração de 40h para 2h. Petrobras, EDP e Energisa reinventam a infraestrutura energética. Saúde, agro e jurídico são os próximos a escalar.</p></div>
+      <div class="resumo-card reveal"><div class="icon">🚀</div><h3>Empreendedorismo Solo</h3><p>A IA derruba as barreiras tradicionais de construção de produtos. Casos reais mostram que times de uma pessoa podem competir globalmente — de zero a milhares de clientes em dezenas de países em poucos meses. A comunidade substitui o co-fundador; a distribuição é o novo diferencial.</p></div>
+      <div class="resumo-card reveal"><div class="icon">⚡</div><h3>Minerais Críticos &amp; Energia</h3><p>O Brasil possui uma combinação única: reservas de lítio, matriz energética renovável e mão de obra qualificada. A transição energética exige refazer 200 anos de infraestrutura em 25. Rastreabilidade e regulação colaborativa são pré-requisitos para atrair capital internacional.</p></div>
+      <div class="resumo-card reveal"><div class="icon">🔬</div><h3>Modelos Fundacionais &amp; Quantum</h3><p>O foco nacional está na tropicalização e adaptação de modelos, onde o Brasil figura entre os melhores do mundo. No quantum, o país deu um passo concreto adquirindo computadores com transferência de tecnologia — buscando soberania tecnológica de longo prazo.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ── INSIGHTS ── -->
+<section id="insights">
+  <div class="inner">
+    <div class="section-header reveal">
+      <div id="insights-badge">Tendências</div>
+      <h2>Insights do SPIW 2026</h2>
+      <p class="section-sub">O que está acontecendo agora e o que o futuro reserva, segundo os
+      principais especialistas do evento.</p>
+      <div id="tabs">
+        <button class="tab-btn active-now" data-tab="now">🔴 Acontecendo Agora</button>
+        <button class="tab-btn" data-tab="future">🔮 Próximos Anos</button>
+      </div>
+    </div>
+    <div id="insights-grid">
+      <!-- Cards injected by JS -->
+    </div>
+  </div>
+</section>
+
+<!-- ── PALESTRA ── -->
+<section id="palestras">
+  <div class="inner">
+    <div class="reveal">
+      <div class="lecture-badge">Palestra</div>
+      <h2>Agentes, Autonomia e a Próxima Onda da Inteligência Artificial</h2>
+    </div>
+
+    <!-- Audio -->
+    <div class="lecture-block reveal">
+      <p class="col-label">Ouvir Palestra</p>
+      <div id="audio-player">
+        <audio id="audio" src="audio/agentes_limpo.mp3" preload="metadata"></audio>
+        <p id="audio-title">Áudio da Palestra</p>
+        <div id="progress-wrap">
+          <div id="progress-bar"></div>
+          <div id="progress-thumb"></div>
+        </div>
+        <div id="audio-times">
+          <span id="time-current">0:00</span>
+          <span id="time-total">0:00</span>
+        </div>
+        <div id="audio-controls">
+          <button class="ctrl-btn" id="btn-back">↺10</button>
+          <button id="play-btn" aria-label="Reproduzir">
+            <svg id="icon-play" width="18" height="18" viewBox="0 0 18 18" fill="white"><polygon points="4,2 16,9 4,16"/></svg>
+            <svg id="icon-pause" width="18" height="18" viewBox="0 0 18 18" fill="white" style="display:none"><rect x="2" y="2" width="5" height="14" rx="1.5"/><rect x="11" y="2" width="5" height="14" rx="1.5"/></svg>
+          </button>
+          <button class="ctrl-btn" id="btn-fwd">↻10</button>
+        </div>
+        <div id="speed-row">
+          <span id="speed-label">Velocidade:</span>
+          <button class="speed-btn" data-speed="0.5">0.5x</button>
+          <button class="speed-btn" data-speed="0.75">0.75x</button>
+          <button class="speed-btn active" data-speed="1">1x</button>
+          <button class="speed-btn" data-speed="1.25">1.25x</button>
+          <button class="speed-btn" data-speed="1.5">1.5x</button>
+          <button class="speed-btn" data-speed="2">2x</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Resumo -->
+    <div class="lecture-block reveal">
+      <p class="col-label">Resumo</p>
+      <div id="lecture-summary">
+        <p>A palestra traçou, com profundidade e clareza, a jornada completa da inteligência artificial — das regras simbólicas dos anos 1980 até a era dos agentes autônomos. A tese central é precisa: a diferença entre saber e fazer.
+
+Modelos de linguagem como GPT-4 ou Gemini são extraordinários em gerar respostas. Mas a produtividade real emerge quando esses modelos passam a agir — consultando APIs, gerenciando arquivos, executando fluxos em múltiplas etapas, sem intervenção humana a cada passo. O LLM torna-se um sistema operacional que orquestra programas especializados.
+
+O Brasil ocupa hoje um lugar singular nessa corrida. Centros de excelência como o CEIA-UFG atendem mais de 70 empresas e alcançam indiretamente uma parcela expressiva da população brasileira através de parceiros estratégicos. A IA agêntica não é ficção científica — é a realidade que chega ao mercado em 2026.</p>
+      </div>
+    </div>
+
+    <!-- Principais Pontos -->
+    <div class="lecture-block reveal">
+      <p class="col-label">Principais Pontos</p>
+      <ul id="key-points">
+        <li><span>→</span>A IA evoluiu de regras simbólicas para embeddings, transformers, IA generativa e, agora, IA agêntica</li>
+        <li><span>→</span>LLMs como 'sistemas operacionais': raciocinam, usam ferramentas, têm memória e orquestram sub-agentes</li>
+        <li><span>→</span>Inclusão digital via agentes conversacionais para populações que não dominam interfaces tradicionais</li>
+        <li><span>→</span>Casos práticos: assistentes de ditação médica, geração automatizada de conteúdo e automação de fluxos complexos</li>
+        <li><span>→</span>Desafios centrais: confiabilidade, observabilidade, custo e governança multi-agente</li>
+        <li><span>→</span>CEIA-UFG: entre os melhores centros de IA do mundo, atendendo 70+ empresas no Brasil</li>
+        <li><span>→</span>Janela de oportunidade aberta: os blocos básicos estão prontos; o que falta é arquitetura de sistema</li>
+      </ul>
+    </div>
+
+    <!-- Palestrantes - Circular Testimonials -->
+    <div class="lecture-block reveal" id="speaker-section">
+      <p class="col-label">Palestrante</p>
+      <div class="testimonial-outer">
+        <button class="t-nav-btn" id="prev-speaker" aria-label="Anterior">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="currentColor"><path d="M11 4L6 9l5 5V4z"/></svg>
+        </button>
+        <div class="testimonial-img-wrap">
+          <div class="testimonial-circle">
+            <img id="testimonial-img" src="" alt="Palestrante"/>
+          </div>
+        </div>
+        <div class="testimonial-body" id="testimonial-body">
+          <h3 class="testimonial-name" id="testimonial-name"></h3>
+          <span class="testimonial-role" id="testimonial-role"></span>
+          <p class="testimonial-bio" id="testimonial-bio"></p>
+          <div class="testimonial-nav">
+            <div class="t-nav-dots" id="testimonial-dots"></div>
+          </div>
+        </div>
+        <button class="t-nav-btn" id="next-speaker" aria-label="Próximo">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="currentColor"><path d="M7 4l5 5-5 5V4z"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer id="footer">
+  <div id="footer-logo">
+    <img src="img/logo_sem_fundo.png" alt="Foursys"/>
+  </div>
+  <p>Parceira global de tecnologia presente no Brasil, EUA e Europa.
+  Há 25 anos impulsionando a transformação digital com inovação, agilidade, dados e IA.</p>
+  <p class="copy">© 2026 Foursys. Todos os direitos reservados. ·
+    <a href="https://foursys.com.br" target="_blank" rel="noopener">foursys.com.br</a>
+  </p>
+</footer>
+
+<!-- ════════════════════════════════════════════════════════════
+     JAVASCRIPT
+════════════════════════════════════════════════════════════ -->
+<script type="module">
+import * as THREE from 'three';
+
+/* ──────────────────────────────────────────────────────────
+   1. THREE.JS SHADER ANIMATION
+────────────────────────────────────────────────────────── */
+(function initShader() {
+  const canvas = document.getElementById('shader-canvas');
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+  const camera = new THREE.Camera();
+  camera.position.z = 1;
+  const scene = new THREE.Scene();
+
+  const uniforms = {
+    time:       { value: 1.0 },
+    resolution: { value: new THREE.Vector2() },
+  };
+
+  const material = new THREE.ShaderMaterial({
+    uniforms,
+    vertexShader: `void main(){gl_Position=vec4(position,1.0);}`,
+    fragmentShader: `
+      precision highp float;
+      uniform vec2 resolution;
+      uniform float time;
+      void main(void){
+        vec2 uv=(gl_FragCoord.xy*2.0-resolution.xy)/min(resolution.x,resolution.y);
+        float t=time*0.05;
+        float lw=0.002;
+        vec3 color=vec3(0.0);
+        for(int j=0;j<3;j++){
+          for(int i=0;i<5;i++){
+            color[j]+=lw*float(i*i)/abs(fract(t-0.01*float(j)+float(i)*0.01)*5.0-length(uv)+mod(uv.x+uv.y,0.2));
+          }
+        }
+        gl_FragColor=vec4(color[0],color[1],color[2],1.0);
+      }
+    `,
+  });
+
+  const mesh = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), material);
+  scene.add(mesh);
+
+  function resize() {
+    const w = canvas.parentElement.clientWidth;
+    const h = canvas.parentElement.clientHeight;
+    renderer.setSize(w, h);
+    uniforms.resolution.value.set(renderer.domElement.width, renderer.domElement.height);
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  (function animate() {
+    requestAnimationFrame(animate);
+    uniforms.time.value += 0.05;
+    renderer.render(scene, camera);
+  })();
+})();
+
+/* ──────────────────────────────────────────────────────────
+   2. GSAP SCROLL ANIMATIONS
+────────────────────────────────────────────────────────── */
+gsap.registerPlugin(ScrollTrigger);
+
+// Hero entrance
+gsap.to('#hero-content', {
+  opacity: 1, y: 0, duration: 1, ease: 'power2.out', delay: 0.4,
+});
+gsap.to('#hero-title', {
+  opacity: 1, y: 0, duration: 0.9, ease: 'power2.out', delay: 0.65,
+});
+gsap.to('#hero-desc', {
+  opacity: 1, y: 0, duration: 0.8, ease: 'power2.out', delay: 0.9,
+});
+
+// Section headers + standalone reveal elements
+gsap.utils.toArray('.section-header.reveal, #palestras .reveal:not(.lecture-block)').forEach(el => {
+  gsap.to(el, {
+    opacity: 1, y: 0, duration: 0.75,
+    scrollTrigger: { trigger: el, start: 'top 88%', once: true },
+  });
+});
+
+// Resumo cards stagger
+gsap.to('#resumo-grid .resumo-card', {
+  opacity: 1, y: 0, duration: 0.55, stagger: 0.08,
+  scrollTrigger: { trigger: '#resumo-grid', start: 'top 85%', once: true },
+});
+
+// Lecture blocks
+gsap.utils.toArray('.lecture-block.reveal').forEach(el => {
+  gsap.to(el, {
+    opacity: 1, y: 0, duration: 0.7,
+    scrollTrigger: { trigger: el, start: 'top 88%', once: true },
+  });
+});
+
+/* ──────────────────────────────────────────────────────────
+   3. INSIGHTS TABS + CARDS
+────────────────────────────────────────────────────────── */
+const insightsNow = [
+  { tag: 'Agentes',   title: 'IA Agêntica em Produção',          body: 'Agentes de IA já operam em seguros, crédito e atendimento ao cliente com resultados mensuráveis. Conversões cresceram, tempos caíram e operadores passaram a fazer trabalho de maior valor.' },
+  { tag: 'Escala',    title: 'O Fim do Purgatory de Pilotos',     body: '2025 foi o ano da experimentação. 2026 é o ano da escala. As organizações que redesenharam processos — não apenas adicionaram IA — são as que capturam valor real.' },
+  { tag: 'Finanças',  title: 'Bancos com Times Enxutos',          body: 'Instituições financeiras já operam grande volume via agentes com equipes reduzidas. BIA resolve 90% no nível zero, sem intervenção humana, 24 horas por dia.' },
+  { tag: 'Soberania', title: 'Brasil Adquire Computador Quântico', body: 'O primeiro computador quântico estável da América Latina chega ao Brasil com transferência de tecnologia. Aplicações em criptografia, otimização e descoberta de fármacos já mapeadas.' },
+  { tag: 'Empreend.', title: 'Unicórnios de 1 Pessoa Chegando',   body: 'Fundadores solos já atingem milhares de clientes em dezenas de países em meses. A previsão é de centenas de empresas com $10M ARR operadas por uma única pessoa ainda este ano.' },
+  { tag: 'Regulação', title: 'Regulação como Arma Geopolítica',   body: 'EUA cogitam tratados que limitam modelos abertos e tecnologias rivais. O Brasil precisa definir posição soberana antes que as regras do jogo sejam impostas de fora.' },
+];
+const insightsFuture = [
+  { tag: 'Agentes',   title: 'Agentes Negociando Entre Si',           body: 'O futuro próximo trará agentes B2B negociando reuniões, preços e contratos entre si, sem intervenção humana. O comércio agent-to-agent já está sendo desenhado.' },
+  { tag: 'Robótica',  title: 'Bilhões de Robôs Humanoides',           body: 'Bilhões de robôs humanoides são previstos para antes de 2035. O impacto não será só no trabalho braçal — toda a cadeia de valor da manufatura será redesenhada.' },
+  { tag: 'IA Pessoal',title: 'Agentes Pessoais Indispensáveis',       body: 'Agentes pessoais integrados ao cotidiano se tornarão tão essenciais quanto o smartphone. Quem não se adaptar acumulará um débito cultural difícil de reverter.' },
+  { tag: 'Quantum',   title: 'Era Quântica Tolerante a Erros',        body: 'A transição para computação quântica tolerante a erros está mapeada. Otimização logística, descoberta de fármacos e criptografia quântica chegarão primeiro às grandes organizações.' },
+  { tag: 'Org Design',title: 'Novos Modelos Organizacionais',         body: 'Estruturas hierárquicas tradicionais serão questionadas. Novos papéis emergem: orquestradores de agentes, tradutores de negócio-IA, product owners de agentes.' },
+  { tag: 'Energia',   title: 'Refazer 200 Anos em 25',                body: 'A transição energética exige reconstruir infraestrutura centenária em uma geração. Gêmeos digitais, robótica industrial e IA operacional serão os aceleradores.' },
+];
+
+const grid = document.getElementById('insights-grid');
+let currentTab = 'now';
+
+function renderInsights(tab) {
+  const data = tab === 'now' ? insightsNow : insightsFuture;
+  const tagClass = tab === 'now' ? 'tag-now' : 'tag-future';
+  grid.innerHTML = data.map(d => `
+    <div class="insight-card" style="opacity:0;transform:translateY(30px)">
+      <span class="insight-tag ${tagClass}">${d.tag}</span>
+      <h3>${d.title}</h3>
+      <p>${d.body}</p>
+    </div>`).join('');
+
+  gsap.to('#insights-grid .insight-card', {
+    opacity: 1, y: 0, duration: 0.5, stagger: 0.08, ease: 'power2.out',
+  });
+}
+
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    if (btn.dataset.tab === currentTab) return;
+    currentTab = btn.dataset.tab;
+
+    // Update button styles
+    document.querySelectorAll('.tab-btn').forEach(b => {
+      b.classList.remove('active-now', 'active-future');
+    });
+    btn.classList.add(currentTab === 'now' ? 'active-now' : 'active-future');
+
+    // Fade out → re-render → fade in
+    gsap.to('#insights-grid', {
+      opacity: 0, duration: 0.2, onComplete: () => {
+        renderInsights(currentTab);
+        gsap.to('#insights-grid', { opacity: 1, duration: 0.2 });
+      }
+    });
+  });
+});
+
+// Initial render
+renderInsights('now');
+
+// ScrollTrigger for insights grid wrapper
+ScrollTrigger.create({
+  trigger: '#insights-grid',
+  start: 'top 88%',
+  once: true,
+  onEnter: () => {
+    gsap.to('#insights .section-header.reveal', {
+      opacity: 1, y: 0, duration: 0.75,
+    });
+  },
+});
+
+/* ──────────────────────────────────────────────────────────
+   4. AUDIO PLAYER
+────────────────────────────────────────────────────────── */
+(function initAudio() {
+  const audio     = document.getElementById('audio');
+  const playBtn   = document.getElementById('play-btn');
+  const iconPlay  = document.getElementById('icon-play');
+  const iconPause = document.getElementById('icon-pause');
+  const bar       = document.getElementById('progress-bar');
+  const thumb     = document.getElementById('progress-thumb');
+  const wrap      = document.getElementById('progress-wrap');
+  const tCurr     = document.getElementById('time-current');
+  const tTotal    = document.getElementById('time-total');
+
+  function fmt(s) {
+    if (!s || isNaN(s)) return '0:00';
+    return Math.floor(s/60) + ':' + String(Math.floor(s%60)).padStart(2,'0');
+  }
+
+  audio.addEventListener('loadedmetadata', () => { tTotal.textContent = fmt(audio.duration); });
+  audio.addEventListener('timeupdate', () => {
+    const pct = audio.duration ? (audio.currentTime / audio.duration) * 100 : 0;
+    bar.style.width = pct + '%';
+    thumb.style.left = pct + '%';
+    tCurr.textContent = fmt(audio.currentTime);
+  });
+  audio.addEventListener('ended', () => {
+    iconPlay.style.display = ''; iconPause.style.display = 'none';
+  });
+
+  playBtn.addEventListener('click', () => {
+    if (audio.paused) {
+      audio.play();
+      iconPlay.style.display = 'none'; iconPause.style.display = '';
+    } else {
+      audio.pause();
+      iconPlay.style.display = ''; iconPause.style.display = 'none';
+    }
+  });
+
+  document.getElementById('btn-back').addEventListener('click', () => {
+    audio.currentTime = Math.max(0, audio.currentTime - 10);
+  });
+  document.getElementById('btn-fwd').addEventListener('click', () => {
+    audio.currentTime = Math.min(audio.duration||0, audio.currentTime + 10);
+  });
+
+  wrap.addEventListener('click', e => {
+    const r = wrap.getBoundingClientRect();
+    const ratio = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width));
+    audio.currentTime = ratio * (audio.duration || 0);
+  });
+
+  document.querySelectorAll('.speed-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.speed-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      audio.playbackRate = parseFloat(btn.dataset.speed);
+    });
+  });
+})();
+
+/* ──────────────────────────────────────────────────────────
+   5. CIRCULAR TESTIMONIALS
+────────────────────────────────────────────────────────── */
+(function initTestimonials() {
+  const speakers = [
+    {
+      name: 'Prof. Anderson Soares',
+      role: 'VP · CEIA-UFG',
+      bio: 'Professor da Universidade Federal de Goiás e VP do Centro de Excelência em Inteligência Artificial (CEIA). Possui ampla experiência em projetos de inovação com indústrias de diferentes segmentos — varejo, segurança, saúde, agronegócio e energia.',
+      image: 'img/palestrante_1.png',
+    },
+  ];
+
+  let current = 0;
+  let autoplayTimer = null;
+  const AUTOPLAY_MS = 5000;
+
+  const imgEl   = document.getElementById('testimonial-img');
+  const nameEl  = document.getElementById('testimonial-name');
+  const roleEl  = document.getElementById('testimonial-role');
+  const bioEl   = document.getElementById('testimonial-bio');
+  const bodyEl  = document.getElementById('testimonial-body');
+  const dotsEl  = document.getElementById('testimonial-dots');
+  const prevBtn = document.getElementById('prev-speaker');
+  const nextBtn = document.getElementById('next-speaker');
+
+  function buildDots() {
+    dotsEl.innerHTML = '';
+    speakers.forEach((_, i) => {
+      const d = document.createElement('button');
+      d.className = 't-dot' + (i === current ? ' active' : '');
+      d.setAttribute('aria-label', 'Palestrante ' + (i + 1));
+      d.addEventListener('click', () => goTo(i));
+      dotsEl.appendChild(d);
+    });
+  }
+
+  function updateDots() {
+    dotsEl.querySelectorAll('.t-dot').forEach((d, i) => {
+      d.classList.toggle('active', i === current);
+    });
+  }
+
+  function render(animate) {
+    const s = speakers[current];
+    imgEl.src   = s.image;
+    imgEl.alt   = s.name;
+    nameEl.textContent = s.name;
+    roleEl.textContent = s.role;
+    bioEl.textContent  = s.bio;
+    updateDots();
+    if (animate) {
+      bodyEl.classList.remove('animate');
+      void bodyEl.offsetWidth; // reflow
+      bodyEl.classList.add('animate');
+    }
+  }
+
+  function goTo(idx) {
+    current = (idx + speakers.length) % speakers.length;
+    render(true);
+    resetAutoplay();
+  }
+
+  function resetAutoplay() {
+    clearInterval(autoplayTimer);
+    if (speakers.length > 1) {
+      autoplayTimer = setInterval(() => goTo(current + 1), AUTOPLAY_MS);
+    }
+  }
+
+  prevBtn.addEventListener('click', () => goTo(current - 1));
+  nextBtn.addEventListener('click', () => goTo(current + 1));
+
+  buildDots();
+  render(false);
+  resetAutoplay();
+})();
+
+</script>
+</body>
+</html>
