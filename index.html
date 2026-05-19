@@ -487,8 +487,12 @@ import * as THREE from 'three';
 ────────────────────────────────────────────────────────── */
 (function initShader() {
   const canvas = document.getElementById('shader-canvas');
-  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  const renderer = new THREE.WebGLRenderer({
+    canvas,
+    antialias: false,
+    powerPreference: 'low-power',
+  });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1));
 
   const camera = new THREE.Camera();
   camera.position.z = 1;
@@ -503,7 +507,7 @@ import * as THREE from 'three';
     uniforms,
     vertexShader: `void main(){gl_Position=vec4(position,1.0);}`,
     fragmentShader: `
-      precision highp float;
+      precision mediump float;
       uniform vec2 resolution;
       uniform float time;
       void main(void){
@@ -513,10 +517,11 @@ import * as THREE from 'three';
         vec3 color=vec3(0.0);
         for(int j=0;j<3;j++){
           for(int i=0;i<5;i++){
-            color[j]+=lw*float(i*i)/abs(fract(t-0.01*float(j)+float(i)*0.01)*5.0-length(uv)+mod(uv.x+uv.y,0.2));
+            float denom=abs(fract(t-0.01*float(j)+float(i)*0.01)*5.0-length(uv)+mod(uv.x+uv.y,0.2));
+            color[j]+=lw*float(i*i)/max(denom,0.003);
           }
         }
-        gl_FragColor=vec4(color[0],color[1],color[2],1.0);
+        gl_FragColor=vec4(clamp(color[0],0.0,1.0),clamp(color[1],0.0,1.0),clamp(color[2],0.0,1.0),1.0);
       }
     `,
   });
@@ -533,11 +538,26 @@ import * as THREE from 'three';
   resize();
   window.addEventListener('resize', resize);
 
-  (function animate() {
+  // Pause rendering when hero is not visible (saves GPU when user scrolls down)
+  let heroVisible = true;
+  const observer = new IntersectionObserver(
+    entries => { heroVisible = entries[0].isIntersecting; },
+    { threshold: 0 }
+  );
+  observer.observe(canvas.parentElement);
+
+  // Cap at ~30 fps to avoid unnecessary GPU load
+  const TARGET_INTERVAL = 1000 / 30;
+  let lastTime = 0;
+
+  (function animate(now) {
     requestAnimationFrame(animate);
+    if (!heroVisible) return;
+    if (now - lastTime < TARGET_INTERVAL) return;
+    lastTime = now;
     uniforms.time.value += 0.05;
     renderer.render(scene, camera);
-  })();
+  })(0);
 })();
 
 /* ──────────────────────────────────────────────────────────
