@@ -485,14 +485,10 @@ import * as THREE from 'three';
 /* ──────────────────────────────────────────────────────────
    1. THREE.JS SHADER ANIMATION
 ────────────────────────────────────────────────────────── */
-(function initShader() {
+try { (function initShader() {
   const canvas = document.getElementById('shader-canvas');
-  const renderer = new THREE.WebGLRenderer({
-    canvas,
-    antialias: false,
-    powerPreference: 'low-power',
-  });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1));
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: false });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
 
   const camera = new THREE.Camera();
   camera.position.z = 1;
@@ -521,7 +517,12 @@ import * as THREE from 'three';
             color[j]+=lw*float(i*i)/max(denom,0.003);
           }
         }
-        gl_FragColor=vec4(clamp(color[0],0.0,1.0),clamp(color[1],0.0,1.0),clamp(color[2],0.0,1.0),1.0);
+        gl_FragColor=vec4(
+          clamp(color[0],0.0,1.0),
+          clamp(color[1],0.0,1.0),
+          clamp(color[2],0.0,1.0),
+          1.0
+        );
       }
     `,
   });
@@ -540,25 +541,26 @@ import * as THREE from 'three';
 
   // Pause rendering when hero is not visible (saves GPU when user scrolls down)
   let heroVisible = true;
-  const observer = new IntersectionObserver(
-    entries => { heroVisible = entries[0].isIntersecting; },
-    { threshold: 0 }
-  );
-  observer.observe(canvas.parentElement);
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver(
+      entries => { heroVisible = entries[0].isIntersecting; },
+      { threshold: 0 }
+    ).observe(canvas.parentElement);
+  }
 
-  // Cap at ~30 fps to avoid unnecessary GPU load
+  // Cap at ~30 fps to reduce GPU load
   const TARGET_INTERVAL = 1000 / 30;
   let lastTime = 0;
 
-  (function animate(now) {
+  requestAnimationFrame(function animate(now) {
     requestAnimationFrame(animate);
     if (!heroVisible) return;
     if (now - lastTime < TARGET_INTERVAL) return;
     lastTime = now;
     uniforms.time.value += 0.05;
     renderer.render(scene, camera);
-  })(0);
-})();
+  });
+})(); } catch(e) { console.warn('Shader init failed:', e); }
 
 /* ──────────────────────────────────────────────────────────
    2. GSAP SCROLL ANIMATIONS
@@ -603,7 +605,7 @@ gsap.utils.toArray('.lecture-block.reveal').forEach(el => {
 ────────────────────────────────────────────────────────── */
 const insightsNow = [
   { tag: 'Agentes',   title: 'IA Agêntica em Produção',          body: 'Agentes de IA já operam em seguros, crédito e atendimento ao cliente com resultados mensuráveis. Conversões cresceram, tempos caíram e operadores passaram a fazer trabalho de maior valor.' },
-  { tag: 'Escala',    title: 'O Fim do Purgatory de Pilotos',     body: '2025 foi o ano da experimentação. 2026 é o ano da escala. As organizações que redesenharam processos — não apenas adicionaram IA — são as que capturam valor real.' },
+  { tag: 'Escala',    title: 'O Fim do Purgatorio de Pilotos',     body: '2025 foi o ano da experimentação. 2026 é o ano da escala. As organizações que redesenharam processos — não apenas adicionaram IA — são as que capturam valor real.' },
   { tag: 'Finanças',  title: 'Bancos com Times Enxutos',          body: 'Instituições financeiras já operam grande volume via agentes com equipes reduzidas. BIA resolve 90% no nível zero, sem intervenção humana, 24 horas por dia.' },
   { tag: 'Soberania', title: 'Brasil Adquire Computador Quântico', body: 'O primeiro computador quântico estável da América Latina chega ao Brasil com transferência de tecnologia. Aplicações em criptografia, otimização e descoberta de fármacos já mapeadas.' },
   { tag: 'Empreend.', title: 'Unicórnios de 1 Pessoa Chegando',   body: 'Fundadores solos já atingem milhares de clientes em dezenas de países em meses. A previsão é de centenas de empresas com $10M ARR operadas por uma única pessoa ainda este ano.' },
